@@ -8,11 +8,10 @@ var FOUND_POKEMONS: any = [];
 
 async function searchForPokemon(name: string) {
   FOUND_POKEMONS = [];
-  const pokedex = new PokemonClient();
   debug("SEARCH: " + name);
   const pokemonName = name.toLowerCase();
 
-  const allPokemons = await pokedex.listPokemons(0, 1000);
+  const allPokemons = await api.listPokemons(0, 1000);
   for (let pokemon of allPokemons.results) {
     if (pokemon.name.includes(pokemonName)) {
       FOUND_POKEMONS.push(pokemon.name);
