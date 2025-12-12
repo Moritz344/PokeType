@@ -2,25 +2,62 @@ import blessed from "neo-blessed";
 import { PokemonClient } from 'pokenode-ts';
 
 const api = new PokemonClient();
-var POKEMON_DATA: string[] = [""];
-var FOUND_POKEMONS: any = [];
+var currentPage: number = 0;
+var pageLimit: number = 20;
 
-
-async function searchForPokemon(name: string) {
-  FOUND_POKEMONS = [];
+async function searchForPokemon(data: any, name: string) {
+  list.setItems([]);
   debug("SEARCH: " + name);
+  let foundPokemons: string[] = [];
   const pokemonName = name.toLowerCase();
 
-  const allPokemons = await api.listPokemons(0, 1000);
-  for (let pokemon of allPokemons.results) {
+  for (let pokemon of data.results) {
     if (pokemon.name.includes(pokemonName)) {
-      FOUND_POKEMONS.push(pokemon.name);
+      foundPokemons.push(pokemon.name);
       debug("FOUND: " + pokemon.name);
-      list.setItems(FOUND_POKEMONS);
+      list.setItems(foundPokemons);
+      screen.render();
+    }
+  }
+}
+
+async function initPage() {
+  const allPokemons = await api.listPokemons(0, 100);
+  return allPokemons;
+}
+
+async function nextPage(name: string) {
+  list.setItems([]);
+  currentPage += 1;
+  debug("PAGE: " + currentPage);
+  const data = await api.listPokemons((currentPage - 1) * pageLimit, pageLimit);
+  let foundPokemons = [];
+  for (let pokemon of data.results) {
+    if (pokemon.name.includes(name.toLowerCase())) {
+      foundPokemons.push(pokemon.name);
+      list.setItems(foundPokemons);
       screen.render();
     }
   }
 
+}
+
+async function previousPage(name: string) {
+  if (currentPage <= 0) {
+    return;
+  }
+  list.setItems([]);
+  currentPage -= 1;
+  debug("PAGE: " + currentPage);
+  const data = await api.listPokemons((currentPage - 1) * pageLimit, pageLimit);
+  let foundPokemons = [];
+  for (let pokemon of data.results) {
+    if (pokemon.name.includes(name.toLowerCase())) {
+      foundPokemons.push(pokemon.name);
+      list.setItems(foundPokemons);
+      screen.render();
+    }
+  }
 }
 
 async function getSpecificPokemon(name: string) {
@@ -40,7 +77,10 @@ async function getPokemonDescription(id: number) {
   return entry ? entry.flavor_text.replace(/\s+/g, " ") : "No Description found.";
 }
 
+
 async function savePokemonDataAndDisplay(data: any) {
+  let pokemonIdString;
+
   pokemonInfos.content = "";
   const pokemon = {
     id: data.id,
@@ -51,37 +91,34 @@ async function savePokemonDataAndDisplay(data: any) {
     desc: "",
   }
 
-  pokemon.desc = await getPokemonDescription(pokemon.id);
 
+  pokemon.desc = await getPokemonDescription(pokemon.id);
   if (pokemon.id < 10) {
-    pokemonInfos.content += "#00" + pokemon.id + "\n";
+    pokemonIdString = "#00" + pokemon.id;
   } else if (pokemon.id >= 10 && pokemon.id < 99) {
-    pokemonInfos.content += "#0" + pokemon.id + "\n";
+    pokemonIdString = "#0" + pokemon.id;
   } else {
-    pokemonInfos.content += "#" + pokemon.id + "\n";
+    pokemonIdString = "#" + pokemon.id;
   }
-  pokemonInfos.content += "Name: " + pokemon.name + "\n";
+  pokemonInfos.content += `{bold}${pokemon.name}{/bold}\n`;
   pokemonInfos.content += pokemon.desc + "\n";
   for (let i = 0; i < pokemon.type.length; i++) {
     pokemonInfos.content += "Type" + ": " + pokemon.type[i]["type"].name + "\n";
   }
   pokemonInfos.content += "Weight: " + pokemon.weight + "kg" + "\n";
   pokemonInfos.show();
+  debug("NAME:" + pokemon.name);
   screen.render();
-
   input.focus();
 
-  //debug(pokemon.name);
-  //debug(pokemon.type);
-  //debug(pokemon.weight);
-  //debug(pokemon.sprite);
 }
 
+
 const screen = blessed.screen({
-  smartCSR: true
+  smartCSR: true,
+  title: "PokeType"
 });
 
-screen.title = "Pokemon TUI";
 
 
 var input = blessed.textbox({
@@ -104,11 +141,13 @@ var input = blessed.textbox({
 
 });
 
-input.on("submit", (value: string) => {
+input.on("submit", async (value: string) => {
+  debug("SUBMITTED: ");
   list.show();
   pokemonInfos.hide();
   list.focus();
-  searchForPokemon(value);
+  let pokemonPageData = await initPage();
+  await searchForPokemon(pokemonPageData, value);
 })
 
 
@@ -118,7 +157,7 @@ const list = blessed.List({
   left: "0",
   width: "100%",
   height: "73%",
-  items: FOUND_POKEMONS,
+  items: "",
   vi: true,
   keys: true,
   mouse: true,
@@ -131,6 +170,7 @@ const list = blessed.List({
 
 const pokemonInfos = blessed.box({
   parent: screen,
+  tags: true,
   top: "14%",
   scrollable: true,
   left: "0%",
@@ -146,20 +186,10 @@ const pokemonInfos = blessed.box({
 pokemonInfos.hide();
 
 
-
-function toggleList(on: boolean) {
-  if (!on) {
-    list.hide();
-    screen.render();
-  } else {
-    list.show();
-    screen.render();
-  }
-}
-
-list.on("select", (item: any, index: number) => {
-  getSpecificPokemon(item.getText());
-  toggleList(false);
+list.on("select", async (item: any, index: number) => {
+  await getSpecificPokemon(item.getText());
+  list.hide();
+  screen.render();
 });
 
 const debugBox = blessed.box({
@@ -167,7 +197,7 @@ const debugBox = blessed.box({
   bottom: 0,
   left: 0,
   width: "100%",
-  height: "20%",
+  height: "40%",
   border: "line",
   label: "Debug",
   style: { fg: "yellow", bg: "black" },
@@ -182,6 +212,21 @@ function debug(msg: any) {
   screen.render();
 }
 
+function goBackToSearch() {
+  pokemonInfos.hide();
+  list.show();
+  screen.render();
+  list.focus();
+}
+var bottom = blessed.text({
+  parent: screen,
+  content: `{green-fg}{bold}Made With Love by Moritz344{/bold}{/green-fg}`,
+  valign: 'middle',
+  top: '95%',
+  left: '3%',
+  height: '5%',
+  tags: true
+});
 
 screen.append(input);
 input.focus();
@@ -189,8 +234,11 @@ input.focus();
 screen.key(["q", "C-c"], () => process.exit(0));
 screen.key(["0"], () => input.focus());
 screen.key(["1"], () => list.focus());
-screen.render();
+screen.key(["b"], () => goBackToSearch());
 
+screen.key(["right"], () => nextPage(input.getText()));
+screen.key(["left"], () => previousPage(input.getText()));
+screen.render();
 
 
 
