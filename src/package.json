@@ -1,0 +1,16 @@
+{
+  "name": "pokemon-cli",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "neo-blessed": "^0.2.0",
+    "pokenode-ts": "^1.20.0"
+  }
+}
