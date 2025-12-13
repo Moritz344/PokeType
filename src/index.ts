@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 import blessed from "neo-blessed";
 import { PokemonClient } from 'pokenode-ts';
 import commander, { program, Command } from 'commander';
@@ -265,7 +267,7 @@ if (process.argv.length == 3) {
     parent: screen,
     bottom: 0,
     left: 0,
-    content: "← → Seite | ↑ ↓ Pokemon List | Enter Open Infos| q Beenden",
+    content: "← → Page | ↑ ↓ Pokemon List | Enter Open Infos| q Exit",
     width: "100%",
     height: "14%",
     border: "line",
