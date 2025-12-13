@@ -1,6 +1,6 @@
 {
-  "name": "pokemon-cli",
-  "version": "1.0.0",
+  "name": "PokeType",
+  "version": "1.0.1",
   "module": "index.ts",
   "type": "module",
   "private": false,
