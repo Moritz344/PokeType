@@ -33,7 +33,7 @@ jobs:
         working-directory: src
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish
         working-directory: src
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
