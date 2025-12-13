@@ -198,8 +198,7 @@ if (process.argv.length == 3) {
   const list = blessed.List({
     parent: screen,
     label: "Pokemon List",
-    top: "14%",
-    left: "0",
+    top: "12%",
     width: "100%",
     height: "80%",
     items: "",
