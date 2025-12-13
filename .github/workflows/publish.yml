@@ -3,11 +3,11 @@ name: Publish to npm
 on:
   push:
     tags:
-      - 'v*'   # Workflow läuft nur bei neuen Tags, z.B. v1.0.0
+      - 'v*'
 
 permissions:
   contents: read
-  id-token: write   # Für Trusted Publishing / Provenance
+  id-token: write   
 
 jobs:
   publish:
@@ -36,5 +36,5 @@ jobs:
         run: npm publish --access public
         working-directory: src
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
