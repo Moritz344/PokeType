@@ -1,14 +1,12 @@
 {
   "name": "poketypetui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "module": "index.ts",
   "type": "module",
   "private": false,
   "keywords": [
     "pokemon",
-    "cli",
-    "type",
-    "utility"
+    "cli"
   ],
   "author": "Moritz Maier",
   "license": "MIT",

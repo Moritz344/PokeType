@@ -8,13 +8,14 @@ import fs from 'fs';
 import path from 'path';
 
 // TODO: search with id in tui
+// TODO: message box when using older version
 
 const api = new PokemonClient();
 var currentPage: number = 0;
 var pageLimit: number = 50;
 const program = new Command();
 const pkg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "package.json"), "utf-8"),
+  fs.readFileSync(path.join(__dirname, "package.json"), "utf-8")
 );
 
 
