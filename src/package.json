@@ -4,6 +4,12 @@
   "module": "index.ts",
   "type": "module",
   "private": false,
+    "keywords": [
+    "pokemon",
+    "cli",
+    "type",
+    "utility"
+  ],
   "devDependencies": {
     "@types/bun": "latest"
   },
