@@ -1,6 +1,8 @@
 import blessed from "neo-blessed";
 import { PokemonClient } from 'pokenode-ts';
 
+// TODO: search with id
+
 const api = new PokemonClient();
 var currentPage: number = 0;
 var pageLimit: number = 20;
@@ -78,6 +80,7 @@ async function getPokemonDescription(id: number) {
 }
 
 
+
 async function savePokemonDataAndDisplay(data: any) {
   let pokemonIdString;
 
@@ -87,12 +90,13 @@ async function savePokemonDataAndDisplay(data: any) {
     name: data.name,
     type: data.types,
     weight: data.weight,
-    sprite: data.sprites.back_default,
     desc: "",
   }
 
+  pokemon.weight = pokemon.weight / 10;
 
   pokemon.desc = await getPokemonDescription(pokemon.id);
+
   if (pokemon.id < 10) {
     pokemonIdString = "#00" + pokemon.id;
   } else if (pokemon.id >= 10 && pokemon.id < 99) {
@@ -107,7 +111,6 @@ async function savePokemonDataAndDisplay(data: any) {
   }
   pokemonInfos.content += "Weight: " + pokemon.weight + "kg" + "\n";
   pokemonInfos.show();
-  debug("NAME:" + pokemon.name);
   screen.render();
   input.focus();
 
@@ -127,6 +130,7 @@ var input = blessed.textbox({
   width: '100%',
   height: 'shrink',
   inputOnFocus: true,
+  label: "Search",
   mouse: true,
   border: {
     type: 'line'
@@ -142,21 +146,21 @@ var input = blessed.textbox({
 });
 
 input.on("submit", async (value: string) => {
-  debug("SUBMITTED: ");
   list.show();
   pokemonInfos.hide();
   list.focus();
   let pokemonPageData = await initPage();
   await searchForPokemon(pokemonPageData, value);
-})
+});
 
 
 const list = blessed.List({
   parent: screen,
+  label: "Pokemon List",
   top: "14%",
   left: "0",
   width: "100%",
-  height: "73%",
+  height: "80%",
   items: "",
   vi: true,
   keys: true,
@@ -168,8 +172,10 @@ const list = blessed.List({
   }
 });
 
+
 const pokemonInfos = blessed.box({
   parent: screen,
+  label: "Infos",
   tags: true,
   top: "14%",
   scrollable: true,
@@ -177,14 +183,14 @@ const pokemonInfos = blessed.box({
   content: "",
   width: "100%",
   border: 'line',
-  height: "73%",
+  height: "80%",
   style: {
     selected: { bg: "blue", fg: "white" },
     border: { fg: "white" }
   }
 })
-pokemonInfos.hide();
 
+pokemonInfos.hide();
 
 list.on("select", async (item: any, index: number) => {
   await getSpecificPokemon(item.getText());
@@ -192,7 +198,7 @@ list.on("select", async (item: any, index: number) => {
   screen.render();
 });
 
-const debugBox = blessed.box({
+var debugBox = blessed.box({
   parent: screen,
   bottom: 0,
   left: 0,
@@ -205,6 +211,47 @@ const debugBox = blessed.box({
   alwaysScroll: true,
   scrollbar: { bg: "blue" }
 });
+
+debugBox.hide();
+
+var helpBar = blessed.box({
+  parent: screen,
+  bottom: 0,
+  left: 0,
+  content: "← → Seite | ↑ ↓ Pokemon List | Enter Open Infos| q Beenden",
+  width: "100%",
+  height: "14%",
+  border: "line",
+  label: "Help",
+  style: { fg: "yellow", bg: "black" },
+  scrollable: true,
+  alwaysScroll: true,
+  scrollbar: { bg: "blue" }
+})
+
+var notSearchedText = blessed.text({
+  parent: list,
+  content: "See a list of pokemon names here."
+});
+
+
+
+
+
+//const msg = blessed.message({
+//  parent: screen,
+//  top: 'center',
+//  left: 'center',
+//  width: '50%',
+//  height: 'shrink',
+//  border: 'line',
+//  label: ' Info '
+//});
+//
+//msg.display('Mit ← → kannst du zwischen Seiten wechseln', 3);
+
+
+
 
 function debug(msg: any) {
   debugBox.pushLine(msg);
@@ -219,8 +266,7 @@ function goBackToSearch() {
   list.focus();
 }
 var bottom = blessed.text({
-  parent: screen,
-  content: `{green-fg}{bold}Made With Love by Moritz344{/bold}{/green-fg}`,
+  content: `{ green - fg } { bold }Made With Love by Moritz344{ /bold}{/green - fg } `,
   valign: 'middle',
   top: '95%',
   left: '3%',
@@ -239,8 +285,5 @@ screen.key(["b"], () => goBackToSearch());
 screen.key(["right"], () => nextPage(input.getText()));
 screen.key(["left"], () => previousPage(input.getText()));
 screen.render();
-
-
-
 
 
