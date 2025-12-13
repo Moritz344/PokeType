@@ -1,5 +1,6 @@
 {
   "name": "pokemon-cli",
+  "version": "1.0.0",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -10,7 +11,10 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "commander": "^14.0.2",
+    "fs": "^0.0.1-security",
     "neo-blessed": "^0.2.0",
+    "path": "^0.12.7",
     "pokenode-ts": "^1.20.0"
   }
 }
