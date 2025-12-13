@@ -35,7 +35,7 @@ function HandleCommands() {
       await searchForSpecificPokemonCommand(value);
     })
     .description("search for a specific pokemon with the name or id")
-    .argument('<pokemonName>')
+    .argument('<name or id>')
 
   program.parse(process.argv);
 
@@ -82,6 +82,9 @@ if (process.argv.length == 3) {
         screen.render();
       }
     }
+    if (foundPokemons.length == 0 || foundPokemons.length == 1) {
+      await getSpecificPokemon(name);
+    }
   }
 
   async function initPage() {
@@ -127,7 +130,7 @@ if (process.argv.length == 3) {
     await api
       .getPokemonByName(name)
       .then((data) => savePokemonDataAndDisplay(data))
-      .catch((error) => debug(error))
+      .catch((error) => notSearchedText.content = "Thats not a pokemon")
   }
 
 
@@ -264,7 +267,7 @@ if (process.argv.length == 3) {
     height: "14%",
     border: "line",
     label: "Help",
-    style: { fg: "yellow", bg: "black" },
+    style: { fg: "blue", bg: "black" },
     scrollable: true,
     alwaysScroll: true,
     scrollbar: { bg: "blue" }
@@ -279,13 +282,14 @@ if (process.argv.length == 3) {
   //  parent: screen,
   //  top: 'center',
   //  left: 'center',
-  //  width: '50%',
+  //  width: '30%',
   //  height: 'shrink',
   //  border: 'line',
   //  label: ' Info '
   //});
-  //
-  //msg.display('Mit ← → kannst du zwischen Seiten wechseln', 3);
+
+
+  //msg.display('PokeType: ' + pkg.version, 3);
 
 
 
