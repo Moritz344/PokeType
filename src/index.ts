@@ -7,11 +7,11 @@ import { getPokemonDescription, getPokemonIdString } from './utils.ts';
 import fs from 'fs';
 import path from 'path';
 
-// TODO: search with id
+// TODO: search with id in tui
 
 const api = new PokemonClient();
 var currentPage: number = 0;
-var pageLimit: number = 20;
+var pageLimit: number = 50;
 const program = new Command();
 const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname, "package.json"), "utf-8"),
@@ -46,7 +46,7 @@ async function searchForSpecificPokemonCommand(value: any) {
     const data = await api.getPokemonByName(value);
     let pokemonIdString = getPokemonIdString(data.id);
     console.log(pokemonIdString + " " + data.name);
-    console.log("Weight: " + data.weight / 10);
+    console.log("Weight: " + data.weight / 10 + "kg");
     for (let i = 0; i < data.types.length; i++) {
       console.log("Type: " + data.types[i].type.name);
     }
