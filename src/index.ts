@@ -83,6 +83,7 @@ if (process.argv.length == 3) {
       }
     }
     if (foundPokemons.length == 0 || foundPokemons.length == 1) {
+      list.hide();
       await getSpecificPokemon(name);
     }
   }
@@ -170,10 +171,10 @@ if (process.argv.length == 3) {
 
 
   var input = blessed.textbox({
-    top: '0px',
-    left: '0px',
+    top: '0',
+    left: '0',
     width: '100%',
-    height: 'shrink',
+    height: '10%',
     inputOnFocus: true,
     label: "Search",
     mouse: true,
@@ -202,7 +203,7 @@ if (process.argv.length == 3) {
   const list = blessed.List({
     parent: screen,
     label: "Pokemon List",
-    top: "12%",
+    top: "10%",
     width: "100%",
     height: "80%",
     items: "",
@@ -217,13 +218,21 @@ if (process.argv.length == 3) {
   });
 
 
+
+  screen.on('resize', () => {
+    list.width = '100%';
+    list.height = '80%';
+    screen.render();
+  });
+
+
+
   const pokemonInfos = blessed.box({
     parent: screen,
     label: "Infos",
     tags: true,
-    top: "14%",
+    top: "10%",
     scrollable: true,
-    left: "0%",
     content: "",
     width: "100%",
     border: 'line',
@@ -264,15 +273,14 @@ if (process.argv.length == 3) {
     left: 0,
     content: "← → Page | ↑ ↓ Pokemon List | Enter Open Infos| q Exit",
     width: "100%",
-    height: "14%",
+    height: "10%",
     border: "line",
     label: "Help",
     style: { fg: "blue", bg: "black" },
-    scrollable: true,
-    alwaysScroll: true,
+    scrollable: false,
+    alwaysScroll: false,
     scrollbar: { bg: "blue" }
   })
-
   var notSearchedText = blessed.text({
     parent: list,
     content: "See a list of pokemon names here."
