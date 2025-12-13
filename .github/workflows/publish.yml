@@ -3,18 +3,25 @@ name: Publish to npm
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'   # Workflow läuft nur bei neuen Tags, z.B. v1.0.0
 
 permissions:
   contents: read
-  id-token: write
+  id-token: write   # Für Trusted Publishing / Provenance
 
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
