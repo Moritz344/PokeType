@@ -32,7 +32,6 @@ function HandleCommands() {
     .command("search")
     .action(async (value: any) => {
       await searchForSpecificPokemonCommand(value);
-      process.exit(0);
     })
     .description("search for a specific pokemon with the name or id")
     .argument('<pokemonName>')
@@ -44,23 +43,16 @@ HandleCommands();
 
 async function searchForSpecificPokemonCommand(value: any) {
   try {
-    if (typeof value == "string") {
-      const data = await api.getPokemonByName(value);
-      let pokemonIdString = getPokemonIdString(data.id);
-      console.log(pokemonIdString + " " + data.name);
-      console.log("Weight: " + data.weight / 10);
-      for (let i = 0; i < data.types.length; i++) {
-        console.log("Type: " + data.types[i].type.name);
-      }
-      let desc = await getPokemonDescription(api, data.id);
-      console.log("Description: ");
-      console.log(desc);
-    } else if (typeof value == "number") {
-      const data = await api.getPokemonById(value);
-      console.log(data);
-    } else {
-      console.log("No pokemon found ;/");
+    const data = await api.getPokemonByName(value);
+    let pokemonIdString = getPokemonIdString(data.id);
+    console.log(pokemonIdString + " " + data.name);
+    console.log("Weight: " + data.weight / 10);
+    for (let i = 0; i < data.types.length; i++) {
+      console.log("Type: " + data.types[i].type.name);
     }
+    let desc = await getPokemonDescription(api, data.id);
+    console.log("Description: ");
+    console.log(desc);
   } catch (err) {
     console.log("Pokemon not found");
   }
