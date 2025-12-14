@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 
 // TODO: search with id in tui
+// TODO: show page number 
 
 const api = new PokemonClient();
 var currentPage: number = 0;
@@ -120,10 +121,14 @@ if (process.argv.length == 3) {
   }
 
   async function getSpecificPokemon(name: string) {
-    await api
-      .getPokemonByName(name)
-      .then((data) => savePokemonDataAndDisplay(data))
-      .catch((error) => notSearchedText.content = "Thats not a pokemon")
+    try {
+      const data = await api.getPokemonByName(name);
+      await savePokemonDataAndDisplay(data);
+    } catch (err) {
+      notSearchedText.content = "Error looking for pokemon."
+      list.show();
+      screen.render();
+    }
   }
 
 
@@ -283,8 +288,8 @@ if (process.argv.length == 3) {
   function goBackToSearch() {
     pokemonInfos.hide();
     list.show();
-    screen.render();
     list.focus();
+    screen.render();
   }
   var bottom = blessed.text({
     content: `{ green - fg } { bold }Made With Love by Moritz344{ /bold}{/green - fg } `,
