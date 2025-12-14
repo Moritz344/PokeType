@@ -3,12 +3,11 @@
 import blessed from "neo-blessed";
 import { PokemonClient } from 'pokenode-ts';
 import commander, { program, Command } from 'commander';
-import { getPokemonDescription, getPokemonIdString } from './utils.ts';
+import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData } from './utils.ts';
 import fs from 'fs';
 import path from 'path';
 
 // TODO: search with id in tui
-// TODO: message box when using older version
 
 const api = new PokemonClient();
 var currentPage: number = 0;
@@ -45,15 +44,8 @@ HandleCommands();
 async function searchForSpecificPokemonCommand(value: any) {
   try {
     const data = await api.getPokemonByName(value);
-    let pokemonIdString = getPokemonIdString(data.id);
-    console.log(pokemonIdString + " " + data.name);
-    console.log("Weight: " + data.weight / 10 + "kg");
-    for (let i = 0; i < data.types.length; i++) {
-      console.log("Type: " + data.types[i].type.name);
-    }
-    let desc = await getPokemonDescription(api, data.id);
-    console.log("Description: ");
-    console.log(desc);
+    let pokemonData = await getPokemonInfoFromData(data, api, true);
+    console.log(pokemonData);
   } catch (err) {
     console.log("Pokemon not found");
   }
@@ -138,30 +130,10 @@ if (process.argv.length == 3) {
 
 
   async function savePokemonDataAndDisplay(data: any) {
-    let pokemonIdString;
-
     pokemonInfos.content = "";
-    const pokemon = {
-      id: data.id,
-      name: data.name,
-      type: data.types,
-      weight: data.weight,
-      desc: "",
-    }
 
-    pokemon.weight = pokemon.weight / 10;
+    pokemonInfos.content = await getPokemonInfoFromData(data, api, false);
 
-    pokemon.desc = await getPokemonDescription(api, pokemon.id);
-
-    pokemon.id = getPokemonIdString(pokemon.id);
-
-
-    pokemonInfos.content += `{bold}${pokemon.id} ${pokemon.name}{/bold}\n`;
-    pokemonInfos.content += pokemon.desc + "\n";
-    for (let i = 0; i < pokemon.type.length; i++) {
-      pokemonInfos.content += "Type" + ": " + pokemon.type[i]["type"].name + "\n";
-    }
-    pokemonInfos.content += "Weight: " + pokemon.weight + "kg" + "\n";
     pokemonInfos.show();
     screen.render();
     input.focus();

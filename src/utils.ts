@@ -22,3 +22,53 @@ export function getPokemonIdString(id: number) {
   return pokemonIdString;
 
 }
+
+export async function getPokemonInfoFromData(data: any, api: any, isCommand: boolean) {
+  let pokemonDataString: string = "";
+  const pokemon = {
+    id: data.id,
+    name: data.name,
+    type: data.types,
+    weight: data.weight,
+    desc: "",
+    abilities: data.abilities,
+    baseStats: data.stats
+  }
+
+  pokemon.weight = pokemon.weight / 10;
+
+  pokemon.desc = await getPokemonDescription(api, pokemon.id);
+
+  pokemon.id = getPokemonIdString(pokemon.id);
+
+
+  if (!isCommand) {
+    pokemonDataString += `{bold}${pokemon.id} ${pokemon.name}{/bold}\n`;
+  } else {
+    pokemonDataString += `${pokemon.id} ${pokemon.name}\n`;
+  }
+  pokemonDataString += pokemon.desc + "\n";
+
+  pokemonDataString += "Weight: " + pokemon.weight + "kg" + "\n";
+
+  pokemonDataString += "\nTypes:\n"
+  pokemonDataString += "------\n"
+  for (let i = 0; i < pokemon.type.length; i++) {
+    pokemonDataString += pokemon.type[i]["type"].name + "\n";
+  }
+
+  pokemonDataString += "\nAbilities:\n"
+  pokemonDataString += "---------\n"
+  for (let i = 0; i < pokemon.abilities.length; i++) {
+    pokemonDataString += pokemon.abilities[i]["ability"]["name"] + "\n";
+  }
+
+  pokemonDataString += "\nBase Stats:\n"
+  pokemonDataString += "-----------\n"
+  for (let i = 0; i < pokemon.baseStats.length; i++) {
+    pokemonDataString += pokemon.baseStats[i]["stat"]["name"] + ":" + pokemon.baseStats[i]["base_stat"] + "\n";
+  }
+
+  return pokemonDataString;
+
+}
