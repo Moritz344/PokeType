@@ -1,6 +1,6 @@
 {
   "name": "poketypetui",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "module": "index.ts",
   "type": "module",
   "private": false,
@@ -8,6 +8,10 @@
     "pokemon",
     "cli"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Moritz344/PokeType.git"
+  },
   "author": "Moritz Maier",
   "license": "MIT",
   "devDependencies": {
