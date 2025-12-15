@@ -7,7 +7,6 @@ import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData } fro
 import fs from 'fs';
 import path from 'path';
 
-// TODO: search with id in tui
 // TODO: show page number 
 
 const api = new PokemonClient();
@@ -28,6 +27,12 @@ function HandleCommands() {
   program
     .command("tui")
     .description("start the tui")
+  program
+    .command("random")
+    .action(async () => {
+      await getRandomPokemonCommand();
+    })
+    .description("get a random pokemon")
 
   program
     .command("search")
@@ -42,6 +47,15 @@ function HandleCommands() {
 }
 HandleCommands();
 
+async function getRandomPokemonCommand() {
+  const data: any = await api.listPokemons(0, 1020);
+  const randomPokemon = data.results[Math.floor(Math.random() * data.results.length)];
+
+  const p: any = await api.getPokemonByName(randomPokemon.name);
+  const pokemonData = await getPokemonInfoFromData(p, api, true);
+  console.log(pokemonData);
+}
+
 async function searchForSpecificPokemonCommand(value: any) {
   try {
     const data = await api.getPokemonByName(value);
@@ -54,7 +68,7 @@ async function searchForSpecificPokemonCommand(value: any) {
 
 
 
-if (process.argv.length == 3) {
+if (process.argv[2] == "tui") {
   const screen = blessed.screen({
     smartCSR: true,
     title: "PokeType"
