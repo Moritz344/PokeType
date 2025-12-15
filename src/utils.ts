@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 export async function getPokemonDescription(api: any, id: number) {
   const species = await api.getPokemonSpeciesById(id);
 
@@ -21,6 +24,36 @@ export function getPokemonIdString(id: number) {
 
   return pokemonIdString;
 
+}
+
+export function checkIfQuizNeedsToBeSet() {
+  const quizDateCheck = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "quiz.json"), "utf-8")
+  );
+
+  let today = new Date();
+  let quizDate = new Date(quizDateCheck.date);
+  let todayDateString = today.getDay() + "." + (today.getMonth() + 1) + "." + today.getFullYear();
+  let setQuizDateString = quizDate.getDay() + "." + (quizDate.getMonth() + 1) + "." + quizDate.getFullYear();
+  if (todayDateString == setQuizDateString) {
+    return false;
+  }
+  return true;
+}
+
+
+export function shuffleArray(array: any) {
+  for (let i = 0; i < array.length; i++) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+export async function getRandomPokemonName(api: any) {
+  const data: any = await api.listPokemons(0, 1020);
+  const randomPokemon = data.results[Math.floor(Math.random() * data.results.length)];
+  return randomPokemon;
 }
 
 export async function getPokemonInfoFromData(data: any, api: any, isCommand: boolean) {

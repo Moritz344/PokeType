@@ -3,11 +3,15 @@
 import blessed from "neo-blessed";
 import { PokemonClient } from 'pokenode-ts';
 import commander, { program, Command } from 'commander';
-import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData } from './utils.ts';
+import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData, getRandomPokemonName, shuffleArray, checkIfQuizNeedsToBeSet } from './utils.ts';
+import { select, Separator } from '@inquirer/prompts';
 import fs from 'fs';
 import path from 'path';
 
 // TODO: show page number 
+// TODO: zufälliges pokemon von einem typen
+// TODO: Team Builder
+// TODO: get pokemon that is effective for example charizard -> Gestein,Wasser
 
 const api = new PokemonClient();
 var currentPage: number = 0;
@@ -17,6 +21,10 @@ const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname, "package.json"), "utf-8")
 );
 
+const setQuiz = checkIfQuizNeedsToBeSet();
+if (setQuiz) {
+  await setQuizOfTheDay();
+}
 
 function HandleCommands() {
   program
@@ -30,10 +38,16 @@ function HandleCommands() {
   program
     .command("random")
     .action(async () => {
-      await getRandomPokemonCommand();
+      const [pokemonData, _] = await getRandomPokemonCommand();
+      console.log(pokemonData);
     })
     .description("get a random pokemon")
-
+  program
+    .command("quiz")
+    .action(async () => {
+      await getQuizOfTheDay();
+    })
+    .description("quiz of the day")
   program
     .command("search")
     .action(async (value: any) => {
@@ -47,13 +61,61 @@ function HandleCommands() {
 }
 HandleCommands();
 
-async function getRandomPokemonCommand() {
-  const data: any = await api.listPokemons(0, 1020);
-  const randomPokemon = data.results[Math.floor(Math.random() * data.results.length)];
+async function setQuizOfTheDay() {
+  const [_, pokemonId] = await getRandomPokemonCommand();
+  let pokemonDescription = await getPokemonDescription(api, pokemonId);
 
-  const p: any = await api.getPokemonByName(randomPokemon.name);
-  const pokemonData = await getPokemonInfoFromData(p, api, true);
-  console.log(pokemonData);
+  let answer = await api.getPokemonByName(pokemonId);
+  let wrong_answer_1 = await getRandomPokemonName(api);
+  let wrong_answer_2 = await getRandomPokemonName(api);
+
+  let choices = [
+    { name: wrong_answer_1.name, value: false },
+    { name: answer.name, value: true },
+    { name: wrong_answer_2.name, value: false },
+  ];
+
+  const quizData = {
+    quiz: pokemonDescription,
+    choices: choices,
+    date: new Date()
+  }
+  fs.writeFileSync(
+    path.join(__dirname, "quiz.json"),
+    JSON.stringify(quizData, null, 2),
+    "utf-8"
+  );
+}
+
+
+async function getRandomPokemonCommand() {
+  const randomPokemon = await getRandomPokemonName(api);
+  const randomPokemonInfos: any = await api.getPokemonByName(randomPokemon.name);
+  const pokemonDataString = await getPokemonInfoFromData(randomPokemonInfos, api, true);
+  return [pokemonDataString, randomPokemonInfos.id];
+}
+async function getQuizOfTheDay() {
+  const quiz = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "quiz.json"), "utf-8")
+  );
+
+  quiz.choices = shuffleArray(quiz.choices);
+
+  console.log("What pokemon is this?")
+  console.log("---------------------")
+  console.log(quiz.quiz);
+  console.log("");
+  const query: any = await select({
+    message: 'Select the pokemon',
+    choices: quiz.choices
+  });
+  if (query) {
+    console.log("Thats correct!");
+  } else if (query == "exit") {
+    console.log("Exit")
+  } else {
+    console.log("Thats incorrect!");
+  }
 }
 
 async function searchForSpecificPokemonCommand(value: any) {
