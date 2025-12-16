@@ -72,6 +72,7 @@ async function setQuizOfTheDay() {
   const [_, pokemonId] = await getRandomPokemonCommand();
   let pokemonDescription = await getPokemonDescription(api, pokemonId);
 
+
   let answer = await api.getPokemonByName(pokemonId);
   let wrong_answer_1 = await getRandomPokemonName(api);
   let wrong_answer_2 = await getRandomPokemonName(api);
@@ -102,26 +103,43 @@ async function getRandomPokemonCommand() {
   return [pokemonDataString, randomPokemonInfos.id];
 }
 async function getQuizOfTheDay() {
-  const quiz = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "quiz.json"), "utf-8")
-  );
+  try {
 
-  quiz.choices = shuffleArray(quiz.choices);
+    const quiz = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "quiz.json"), "utf-8")
+    );
 
-  console.log("What pokemon is this?")
-  console.log("---------------------")
-  console.log(quiz.quiz);
-  console.log("");
-  const query: any = await select({
-    message: 'Select the pokemon',
-    choices: quiz.choices
-  });
-  if (query) {
-    console.log("Thats correct!");
-  } else if (query == "exit") {
+    let splittedDesc = quiz.quiz.split(" ");
+    let lowerCaseArray = [];
+    for (const word of splittedDesc) {
+      lowerCaseArray.push(word.toLowerCase());
+    }
+    for (let i = 0; i < quiz.choices.length; i++) {
+      if (lowerCaseArray.includes(quiz.choices[i].name)) {
+        const index = lowerCaseArray.indexOf(quiz.choices[i].name);
+        lowerCaseArray.splice(index, 0)
+        lowerCaseArray[index] = "CENSORED";
+      }
+    }
+    quiz.choices = shuffleArray(quiz.choices);
+
+    console.log("What pokemon is this?")
+    console.log("---------------------")
+    console.log(lowerCaseArray.join(" "));
+    console.log("");
+    const query: any = await select({
+      message: 'Select the pokemon',
+      choices: quiz.choices
+    });
+    if (query) {
+      console.log("Thats correct!");
+    } else if (query == "exit") {
+      console.log("Exit")
+    } else {
+      console.log("Thats incorrect!");
+    }
+  } catch (err) {
     console.log("Exit")
-  } else {
-    console.log("Thats incorrect!");
   }
 }
 
