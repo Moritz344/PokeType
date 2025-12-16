@@ -8,10 +8,9 @@ import { select, Separator } from '@inquirer/prompts';
 import fs from 'fs';
 import path from 'path';
 
-// TODO: show page number 
-// TODO: zufälliges pokemon von einem typen
+// TODO: show page number
 // TODO: Team Builder
-// TODO: get pokemon that is effective for example charizard -> Gestein,Wasser
+// TODO: remove pokemon name in quiz description if its in the desc
 
 const api = new PokemonClient();
 var currentPage: number = 0;
@@ -50,16 +49,24 @@ function HandleCommands() {
     .description("quiz of the day")
   program
     .command("search")
-    .action(async (value: any) => {
-      await searchForSpecificPokemonCommand(value);
-    })
     .description("search for a specific pokemon with the name or id")
     .argument('<name or id>')
+    .action(async (value: any, type?: string) => {
+      await searchForSpecificPokemonCommand(value);
+    })
+  program
+    .command("effective")
+    .description("returns pokemon types that are effective against the given pokemon and uneffective")
+    .argument('<name>')
+    .action(async (name: string) => {
+      await getEffectivePokemonCommand(name);
+    })
 
   program.parse(process.argv);
 
 }
 HandleCommands();
+
 
 async function setQuizOfTheDay() {
   const [_, pokemonId] = await getRandomPokemonCommand();
@@ -118,7 +125,47 @@ async function getQuizOfTheDay() {
   }
 }
 
-async function searchForSpecificPokemonCommand(value: any) {
+async function getEffectivePokemonCommand(name: string) {
+  try {
+    const data: any = await api.getPokemonByName(name);
+    let types: string[] = [];
+    let doubleDamageTo: string[] = [];
+    let doubleDamageFrom: string[] = [];
+
+    for (let i = 0; i < data.types.length; i++) {
+      types.push(data.types[i]["type"]["name"]);
+    }
+    console.log("Pokemon: " + name + " with type(s) " + types);
+    console.log("----------------------")
+    for (let i = 0; i < types.length; i++) {
+      let typeData: any = await api.getTypeByName(types[i]);
+      for (let x = 0; x < typeData.damage_relations.double_damage_to.length; x++) {
+        doubleDamageTo.push(typeData["damage_relations"]["double_damage_to"][x]["name"]);
+      }
+      for (let y = 0; y < typeData.damage_relations.double_damage_from.length; y++) {
+        doubleDamageFrom.push(typeData["damage_relations"]["double_damage_from"][y]["name"]);
+      }
+    }
+    console.log("Double damage To:");
+    for (const d of doubleDamageTo) {
+      console.log(d);
+    }
+    console.log("-----")
+    console.log("Double damage From:");
+    for (const d of doubleDamageFrom) {
+      console.log(d);
+    }
+
+
+
+
+  } catch (err) {
+    console.log("Pokemon not found");
+  }
+
+}
+
+async function searchForSpecificPokemonCommand(value: any, type?: string) {
   try {
     const data = await api.getPokemonByName(value);
     let pokemonData = await getPokemonInfoFromData(data, api, true);
@@ -127,7 +174,6 @@ async function searchForSpecificPokemonCommand(value: any) {
     console.log("Pokemon not found");
   }
 }
-
 
 
 if (process.argv[2] == "tui") {
