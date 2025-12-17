@@ -1,18 +1,18 @@
 {
-  "quiz": "When its body temperature goes up, it turns into steam and vanishes. When its temperature lowers, it returns to ice.",
+  "quiz": "To eat, it deftly shucks nuts with its two tails. It rarely uses its arms now.",
   "choices": [
     {
-      "name": "buzzwole",
+      "name": "shelgon",
       "value": false
     },
     {
-      "name": "cryogonal",
+      "name": "ambipom",
       "value": true
     },
     {
-      "name": "castform",
+      "name": "ledyba",
       "value": false
     }
   ],
-  "date": "2025-12-15T12:24:21.861Z"
+  "date": "2025-12-17T07:52:28.528Z"
 }

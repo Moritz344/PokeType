@@ -8,6 +8,14 @@
     "pokemon",
     "cli"
   ],
+  "bin": {
+  "poketypetui": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node --bundle --external neo-blessed",
+    "link": "bun link",
+    "start": "bun run dist/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/Moritz344/PokeType.git"

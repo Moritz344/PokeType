@@ -3,10 +3,13 @@
 import blessed from "neo-blessed";
 import { PokemonClient } from 'pokenode-ts';
 import commander, { program, Command } from 'commander';
-import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData, getRandomPokemonName, shuffleArray, checkIfQuizNeedsToBeSet } from './utils.ts';
+import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData, getRandomPokemonName, shuffleArray, checkIfQuizNeedsToBeSet } from './utils';
 import { select, Separator } from '@inquirer/prompts';
 import fs from 'fs';
 import path from 'path';
+import pkg from '../package.json' assert { type: 'json' };
+import quiz from './quiz.json' assert { type: 'json' };
+
 
 // TODO: show page number
 // TODO: Team Builder
@@ -16,9 +19,6 @@ const api = new PokemonClient();
 var currentPage: number = 0;
 var pageLimit: number = 50;
 const program = new Command();
-const pkg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "package.json"), "utf-8")
-);
 
 const setQuiz = checkIfQuizNeedsToBeSet();
 if (setQuiz) {
@@ -105,10 +105,7 @@ async function getRandomPokemonCommand() {
 async function getQuizOfTheDay() {
   try {
 
-    const quiz = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "quiz.json"), "utf-8")
-    );
-
+    console.log(quiz.quiz);
     let splittedDesc = quiz.quiz.split(" ");
     let lowerCaseArray = [];
     for (const word of splittedDesc) {
@@ -175,17 +172,16 @@ async function getEffectivePokemonCommand(name: string) {
       console.log(" ");
 
     }
+
     if (doubleDamageFrom.length >= 1) {
       console.log(name + " is uneffective against the following Pokemon Types:");
       console.log(" ");
       console.log("Gets double damage from: " + doubleDamageFrom);
     }
+
     if (halfDamageTo.length >= 1) {
       console.log("Does half damage to: " + halfDamageTo);
     }
-
-
-
 
   } catch (err) {
     console.log("Pokemon not found");
