@@ -1,19 +1,19 @@
 #!/usr/bin/env bun
 
-import blessed from "neo-blessed";
+import blessed from "blessed";
 import { PokemonClient } from 'pokenode-ts';
-import commander, { program, Command } from 'commander';
+import { Command } from 'commander';
 import { getPokemonDescription, getPokemonIdString, getPokemonInfoFromData, getRandomPokemonName, shuffleArray, checkIfQuizNeedsToBeSet } from './utils';
 import { select, Separator } from '@inquirer/prompts';
 import fs from 'fs';
 import path from 'path';
-import pkg from '../package.json' assert { type: 'json' };
-import quiz from './quiz.json' assert { type: 'json' };
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// TODO: show page number
-// TODO: Team Builder
-// TODO: remove pokemon name in quiz description if its in the desc
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json"), "utf-8"));
+const quiz = JSON.parse(fs.readFileSync(path.join(__dirname, "quiz.json"), "utf-8"));
 
 const api = new PokemonClient();
 var currentPage: number = 0;
@@ -104,8 +104,6 @@ async function getRandomPokemonCommand() {
 }
 async function getQuizOfTheDay() {
   try {
-
-    console.log(quiz.quiz);
     let splittedDesc = quiz.quiz.split(" ");
     let lowerCaseArray = [];
     for (const word of splittedDesc) {
@@ -143,7 +141,7 @@ async function getQuizOfTheDay() {
 async function getEffectivePokemonCommand(name: string) {
   try {
     const data: any = await api.getPokemonByName(name);
-    let types: string[] = [];
+    let types: any = [];
     let doubleDamageTo: string[] = [];
     let doubleDamageFrom: string[] = [];
     let halfDamageTo: string[] = [];

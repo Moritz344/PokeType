@@ -4,17 +4,13 @@
   "module": "index.ts",
   "type": "module",
   "private": false,
+  "main": "src/index.ts",
   "keywords": [
     "pokemon",
     "cli"
   ],
   "bin": {
-  "poketypetui": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target node --bundle --external neo-blessed",
-    "link": "bun link",
-    "start": "bun run dist/index.js"
+    "poketypetui": "./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -29,11 +25,13 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@types/blessed": "^0.1.27",
+    "blessed": "^0.1.81",
     "commander": "^14.0.2",
     "fs": "^0.0.1-security",
     "inquirer": "^13.1.0",
-    "neo-blessed": "^0.2.0",
     "path": "^0.12.7",
-    "pokenode-ts": "^1.20.0"
+    "pokenode-ts": "^1.20.0",
+    "url": "^0.11.4"
   }
 }
