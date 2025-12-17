@@ -149,6 +149,7 @@ async function getEffectivePokemonCommand(name: string) {
     let types: string[] = [];
     let doubleDamageTo: string[] = [];
     let doubleDamageFrom: string[] = [];
+    let halfDamageTo: string[] = [];
 
     for (let i = 0; i < data.types.length; i++) {
       types.push(data.types[i]["type"]["name"]);
@@ -163,16 +164,24 @@ async function getEffectivePokemonCommand(name: string) {
       for (let y = 0; y < typeData.damage_relations.double_damage_from.length; y++) {
         doubleDamageFrom.push(typeData["damage_relations"]["double_damage_from"][y]["name"]);
       }
+      for (let y = 0; y < typeData.damage_relations.half_damage_to.length; y++) {
+        halfDamageTo.push(typeData["damage_relations"]["half_damage_to"][y]["name"]);
+      }
     }
     if (doubleDamageTo.length >= 1) {
       console.log(name + " is effective against the following Pokemon Types:");
-      console.log(doubleDamageTo);
+      console.log(" ");
+      console.log("Does double damage to: " + doubleDamageTo);
       console.log(" ");
 
     }
     if (doubleDamageFrom.length >= 1) {
       console.log(name + " is uneffective against the following Pokemon Types:");
-      console.log(doubleDamageFrom);
+      console.log(" ");
+      console.log("Gets double damage from: " + doubleDamageFrom);
+    }
+    if (halfDamageTo.length >= 1) {
+      console.log("Does half damage to: " + halfDamageTo);
     }
 
 
